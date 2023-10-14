@@ -1,0 +1,50 @@
+#!/bin/bash
+
+print_usage(){
+    printf "Usage: ./`basename "$0"` [-e|-d] <-s KEY_SIZE> <-k KEY_FILE> <-v IV_FILE> <-i IN_FILE> <-o OUT_FILE> [-m MODE] [-h]\n"
+    printf "Options:\n"
+    printf "  -e : Performs an encryption, default\n"
+    printf "  -d : Performs a decryption\n"
+    printf "  -s : Size of the key (128, 192 or 256)\n"
+    printf "  -k : File containing the key\n"
+    printf "  -v : File containing the initialization vector\n"
+    printf "  -i : Input file\n"
+    printf "  -o : Output file\n"
+    printf "  -m : Select mode between ecb and ctr, default ecb\n"
+    printf "  -h : Print this help message\n"
+    printf "\nEncrypts/Decrypts a file using AES\n"
+
+}
+decript="-e"
+unset size
+unset key
+unset input
+unset output
+unset iv
+mode="ecb"
+
+while getopts 'eds:k:i:o:m:v:h' flag; do
+    case "${flag}" in
+        e) decript="-e" ;;
+        d) decript="-d" ;;
+        s) size="${OPTARG}" ;;
+        k) key="${OPTARG}" ;;
+        i) input="${OPTARG}" ;;
+        o) output="${OPTARG}" ;;
+        m) mode="${OPTARG}" ;;
+        v) iv="${OPTARG}" ;;
+        h) print_usage
+           exit 0 ;;
+        *) print_usage
+           exit 1 ;;
+   esac
+done
+
+if [ -z "$size" ] || [ -z "$key" ] || [ -z "$input" ] || [ -z "$output" ] || [ -z "$iv" ]; then
+    print_usage
+    exit 1
+fi
+
+openssl enc $decript -aes-$size-$mode -in $input -out $output -K `head -c $(expr $size / 8) $key | xxd -p | tr -d '\n'` -iv `head -c 16 $iv | xxd -p | tr -d '\n'` #-nopad
+
+

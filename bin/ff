@@ -1,0 +1,36 @@
+#!/bin/bash
+print_usage(){
+    printf "Usage: ./`basename "$0"` <FILE> [-p] [-h] \n"
+    printf "Options:\n"
+    printf "  -p : Search for filenames containing FILE instead\n"
+    printf "  -h : Print this help message\n"
+    printf "Finds all files with name FILE in the current directory or subdirectories\n"
+}
+
+if [ "${1#-}" = "$1" ]; then
+    file="$1"
+    shift
+fi
+
+while getopts 'ph' flag; do
+    case "${flag}" in
+        p) part=1 ;;
+        h) print_usage
+           exit 0 ;;
+        *) print_usage
+           exit 1 ;;
+   esac
+done
+
+if [ -z "$file" ]; then
+    printf "ERROR: Missing argument with file name\n"
+    print_usage
+    exit 1
+fi
+
+
+if [ -z "$part" ]; then
+    find . -type f -name "$file" | sed -r 's|/[^/]+$||' |sort |uniq
+else
+    find . -type f -name "*""$file""*" | sort |uniq
+fi

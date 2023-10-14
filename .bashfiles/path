@@ -1,0 +1,7 @@
+export PATH=~/bin:$PATH
+export PATH=/opt/cuda/bin:$PATH
+
+# Path to work paths
+if [ -f ~/.bashfiles/work/path ]; then
+  . ~/.bashfiles/work/path
+fi

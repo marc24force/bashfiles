@@ -1,0 +1,32 @@
+#!/bin/bash
+
+print_usage(){
+    printf "Usage: ./`basename "$0"` [-h]\n"
+    printf "Options:\n"
+    printf "  -h : Print this help message\n"
+    printf "\nPrints CPU and GPU temperature.\n"
+}
+
+while getopts 'h' flag; do
+    case "${flag}" in
+        h) print_usage
+           exit 0 ;;
+        *) print_usage
+           exit 1 ;;
+   esac
+done
+
+uname -a | grep WSL > /dev/null
+if [ $? -eq 0 ]; then
+    paste <(echo CPU) <(echo "No info") | column -s $'\t' -t 
+else
+    paste <(cat /sys/class/thermal/thermal_zone*/type) <(cat /sys/class/thermal/thermal_zone*/temp) | column -s $'\t' -t | sed 's/\(.\)..$/.\1°C/'
+fi
+
+nvidia-smi &> /dev/null
+if [ $? -eq 0 ]; then
+    paste <(nvidia-smi -a | grep "Product Name"| sed 's/.*: //') <(nvidia-smi -a | grep "GPU Current Temp"| sed -r 's/[a-zA-Z: ]//g') <(echo .0ºC) | column -s $'\t' -o '_' -t | sed -r 's/_/  /' | sed -r 's/_//'
+else
+    paste <(echo GPU) <(echo "No info") | column -s $'\t' -t 
+fi
+
