@@ -34,7 +34,7 @@ fi
 
 if [ "$color_prompt" = yes ]; then
     # [dd/mm/yyyy hh:mm:ss]
-    PS0='\[\e[0;35m\][\D{%d/%m/%Y} \t]\[\e[m\]\n'
+    PS0='\e[0;35m[\D{%d/%m/%Y} \t]\e[m\n'
     # [dd/mm/yyyy hh:mm:ss]\n(chroot)
     PS1='\[\e[0;35m\][\D{%d/%m/%Y} \t]\[\e[m\]\n\[\e[0;33m\]${debian_chroot:+($debian_chroot)}\[\e[m\]'
     # user@host:dir$
