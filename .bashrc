@@ -18,6 +18,9 @@ export EDITOR="$VISUAL"
 # Use extended pattern matching
 shopt -s extglob
 
+# Export directory for screen
+export SCREENDIR=$HOME/.screen
+
 # PATH
 if [ -f ~/.bashfiles/path ]; then
   . ~/.bashfiles/path
