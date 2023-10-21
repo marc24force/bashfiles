@@ -1,8 +1,9 @@
 #!/bin/bash
 print_usage(){
-    printf "Usage: ./`basename "$0"` <WORD> [-d DIRECTORY] [-r] [-l] [-h]\n"
+    printf "Usage: ./`basename "$0"` <WORD> [-d DIRECTORY] [-p] [-s] [-l] [-h]\n"
     printf "Options:\n"
     printf "  -d : Search in directory DIRECTORY\n"
+    printf "  -p : Accept partial matches\n"
     printf "  -s : Skip search in subdirectories\n"
     printf "  -l : List just the name of the files containig WORD\n"
     printf "  -h : Print this help message\n"
@@ -24,10 +25,12 @@ fi
 dir=./
 
 act="recurse"
+pflag=-w
 
-while getopts 'd:slh' flag; do
+while getopts 'd:pslh' flag; do
     case "${flag}" in
         d) dir="${OPTARG}" ;;
+	p) pflag="" ;;
         s) act="skip" ;;
         l) list=1 ;;
         h) print_usage
@@ -40,7 +43,7 @@ done
 dir="${dir%/}/*"
 
 if [ -z "$list" ]; then
-    grep -nwe "$word" -d ${act} ${dir} --color=auto
+    grep ${pflag} -ne "$word" -d ${act} ${dir} --color=auto
 else
-    grep -w ${dir} -d ${act} -e ${word} -l | sort | uniq
+    grep ${pflag} ${dir} -d ${act} -e ${word} -l | sort | uniq
 fi
