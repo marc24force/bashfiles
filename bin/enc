@@ -7,7 +7,9 @@ print_usage(){
     printf "  -d : Performs a decryption\n"
     printf "  -s : Size of the key (128, 192 or 256)\n"
     printf "  -k : File containing the key\n"
+    printf "       If it's not an existing file treat the text as the key\n"
     printf "  -v : File containing the initialization vector\n"
+    printf "       If it's not an existing file treat the text as the IV\n"
     printf "  -i : Input file\n"
     printf "  -o : Output file\n"
     printf "  -m : Select mode between ecb and ctr, default ecb\n"
@@ -40,11 +42,11 @@ while getopts 'eds:k:i:o:m:v:h' flag; do
    esac
 done
 
-if [ -z "$size" ] || [ -z "$key" ] || [ -z "$input" ] || [ -z "$output" ] || [ -z "$iv" ]; then
+if [ -z "$size" ] || [ -z "$key" ] || [ -z "$input" ] || [ -z "$output" ] || ([ -z "$iv" ] && [ "$mode" = "ctr" ]); then
     print_usage
     exit 1
 fi
 
-openssl enc $decript -aes-$size-$mode -in $input -out $output -K `head -c $(expr $size / 8) $key | xxd -p | tr -d '\n'` -iv `head -c 16 $iv | xxd -p | tr -d '\n'` #-nopad
+openssl enc $decript -aes-$size-$mode -in $input -out $output -K `rd $key | head -c $(expr $size / 8) | xxd -p | tr -d '\n'` `[ "$mode" = "ctr" ] && echo "-iv \`rd $iv | head -c 16 | xxd -p | tr -d '\n'\`"`
 
 
